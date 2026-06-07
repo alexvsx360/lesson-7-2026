@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript למתחילים - שיעור 7: Scope, Validation, Loops, Arrays</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+</head>
+<body>
+    <div class="slideshow-container">
+        <!-- Slide 1 -->
+        <div class="slide active">
+            <h1 class="title-main">JavaScript למתחילים</h1>
+            <p class="title-meta">Scope · Validation · Loops · מערכים · אובייקטים · Spread</p>
+            <h2 class="title-sub">שיעור 7</h2>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="slide">
+            <h2>מה נלמד בשיעור 7? 📚</h2>
+            <p class="lead">אחרי שיעורים 5–6 (משתנים, תנאים, פונקציות, DOM) — היום נצלול לעומק ב-<strong>Scope</strong>, <strong>Validation</strong>, <strong>Loops</strong>, ונלמד לעבוד חכם עם <strong>מערכים ואובייקטים</strong>.</p>
+            <table class="data-table">
+                <thead><tr><th>נושא</th><th>מה נתרגל</th></tr></thead>
+                <tbody>
+                    <tr><td><span class="term-ltr">Scope</span></td><td>Global, Function, Block, Shadowing, Scope בלולאות</td></tr>
+                    <tr><td><span class="term-ltr">Validation</span></td><td>בדיקת קלט, שגיאות, פונקציית <code>validate</code></td></tr>
+                    <tr><td><span class="term-ltr">Loops</span></td><td><code>for</code>, <code>while</code>, <code>do...while</code>, <code>break</code>, <code>continue</code></td></tr>
+                    <tr><td>שיטות מערכים</td><td><code>push</code>, <code>pop</code>, <code>shift</code>, <code>unshift</code>, <code>slice</code>, <code>splice</code></td></tr>
+                    <tr><td>מערכים מתקדם</td><td><code>indexOf</code>, <code>includes</code>, <code>join</code>, <code>reverse</code></td></tr>
+                    <tr><td>אובייקטים</td><td><code>Object.keys()</code>, <code>values()</code>, <code>entries()</code></td></tr>
+                    <tr><td>Iteration</td><td><code>for</code>, <code>forEach</code>, <code>for...in</code>, <code>for...of</code></td></tr>
+                    <tr><td>מבנים מקוננים + Spread</td><td>מערך של אובייקטים, אובייקט של מערכים, <code>...</code></td></tr>
+                </tbody>
+            </table>
+            <div class="note console-note">
+                <h3>קונסול פתוח</h3>
+                <p>לחצו <strong>F12</strong> → <strong>Console</strong>. כל כפתור «הרץ» מדפיס גם בשקופית וגם בקונסול.</p>
+            </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="slide">
+            <h2>חיבור לשיעורים 5 ו-6</h2>
+            <p class="lead">שיעור 7 בונה על מה שכבר למדתם — לא מתחילים מאפס.</p>
+            <div class="tip-grid">
+                <div class="tip-card"><strong>שיעור 5</strong><span>משתנים, סוגי נתונים, אובייקטים בסיסיים, DOM, פונקציות, Scope ולולאות — מבוא.</span></div>
+                <div class="tip-card"><strong>שיעור 6</strong><span>תנאים, לוגיקה בוליאנית, לולאות, פונקציות, Scope מעמיק, DOM מעשי.</span></div>
+                <div class="tip-card"><strong>שיעור 7</strong><span>מעמיקים ב-Scope ו-Validation, שולטים בלולאות על נתונים, ועובדים עם מערכים ואובייקטים כמו במציאות.</span></div>
+            </div>
+            <div class="note"><p><strong>המטרה:</strong> לכתוב קוד שמטפל בנתונים אמיתיים — רשימת משתמשים, טופס, סינון, העתקה — בצורה נקייה ובטוחה.</p></div>
+        </div>
+
+        <!-- Slide 4: Scope -->
+        <div class="slide">
+            <h2><span class="term-ltr">Scope</span> — איפה המשתנה «חי»?</h2>
+            <p class="lead"><span class="term-ltr">Scope</span> = התחום שבו משתנה או פונקציה נגישים. מחוץ לתחום — JavaScript לא מכיר את השם.</p>
+            <div class="interactive-code">
+                <pre><code class="language-javascript">const appName = "Course App";
+let counter = 0;
+
+function increment() {
+    counter++;
+    console.log(`${appName} — counter:`, counter);
+}
+
+increment();
+increment();</code></pre>
+                <button class="run-btn" onclick="runDemo('scopeGlobal')">הרץ דוגמה</button>
+                <div class="output" id="output-scopeGlobal"></div>
+            </div>
+            <div class="warning-box"><strong>כלל אצבע:</strong> הגדירו משתנים במקום הכי צר שבו צריכים אותם — לא גלובלי «סתם».</div>
+        </div>
+
+        <!-- Slide 5 -->
+        <div class="slide">
+            <h2>Global · Function · Block <span class="term-ltr">Scope</span></h2>
+            <table class="data-table">
+                <thead><tr><th>סוג</th><th>איפה?</th><th>דוגמה</th></tr></thead>
+                <tbody>
+                    <tr><td>Global</td><td>מחוץ לכל פונקציה</td><td><code>const appName = "..."</code></td></tr>
+                    <tr><td>Function</td><td>בתוך פונקציה</td><td>פרמטרים, משתנים בגוף הפונקציה</td></tr>
+                    <tr><td>Block</td><td>בתוך <code>{}</code> עם <code>let</code>/<code>const</code></td><td>משתנה בתוך <code>if</code> או <code>for</code></td></tr>
+                </tbody>
+            </table>
+            <div class="interactive-code">
+                <pre><code class="language-javascript">const user = "נועה";
+if (true) {
+    const greeting = `שלום ${user}`;
+    console.log(greeting);
+}
+// console.log(greeting); // שגיאה — Block scope</code></pre>
+                <button class="run-btn" onclick="runDemo('scopeBlock')">הרץ Block Scope</button>
+                <div class="output" id="output-scopeBlock"></div>
+            </div>
+        </div>
+
+        <!-- Slide 6 -->
+        <div class="slide">
+            <h2><span class="term-ltr">Scope Chain</span> ו-<span class="term-ltr">Shadowing</span></h2>
+            <p class="lead"><strong>Scope Chain</strong> — JS מחפש משתנה מבפנים החוצה. <strong>Shadowing</strong> — משתנה פנימי עם אותו שם «מסתיר» את החיצוני.</p>
+            <div class="interactive-code">
+                <pre><code class="language-javascript">const city = "תל אביב";
+function outer() {
+    const city = "חיפה";
+    function inner() {
+        const city = "ירושלים";
+        console.log("inner:", city);
+    }
+    inner();
+    console.log("outer:", city);
+}
+outer();
+console.log("גלובלי:", city);</code></pre>
+                <button class="run-btn" onclick="runDemo('scopeChain')">הרץ Scope Chain</button>
+                <div class="output" id="output-scopeChain"></div>
+            </div>
+        </div>
+
+        <!-- Slide 7 -->
+        <div class="slide">
+            <h2><span class="term-ltr">Scope</span> בלולאות</h2>
+            <p class="lead">משתנה של <code>let</code> בתוך <code>for</code> קיים רק בתוך הלולאה — זה עוזר למנוע טעויות.</p>
+            <div class="interactive-code">
+                <pre><code class="language-javascript">const results = [];
+for (let i = 0; i < 3; i++) {
+    const label = `פריט ${i}`;
+    results.push(label);
+}
+console.log("תוצאות:", results);
+// console.log(i); // שגיאה עם let</code></pre>
+                <button class="run-btn" onclick="runDemo('scopeInLoop')">הרץ Scope בלולאה</button>
+                <div class="output" id="output-scopeInLoop"></div>
+            </div>
+        </div>
+
+        <!-- Slide 8: Validation -->
+        <div class="slide">
+            <h2><span class="term-ltr">Validation</span> — אימות קלט</h2>
+            <p class="lead"><span class="term-ltr">Validation</span> = לוודא שהנתונים שהמשתמש שולח <strong>תקינים</strong> לפני שממשיכים (שמירה, שליחה, חישוב).</p>
+            <div class="concept-card">
+                <p>בלי Validation — טופס ריק, גיל שלילי, אימייל בלי @ — עלולים לשבור את האפליקציה או לשמור מידע שגוי.</p>
+            </div>
+            <ul>
+                <li>האם השדה ריק?</li>
+                <li>האם זה מספר / טקסט?</li>
+                <li>האם הערך בטווח הגיוני? (גיל 18+, אורך סיסמה…)</li>
+            </ul>
+        </div>
+
+        <!-- Slide 9 -->
+        <div class="slide">
+            <h2>Validation בסיסי</h2>
+            <div class="interactive-code">
+                <pre><code class="language-javascript">const name = "   ";
+const age = "17";
+
+console.log("שם ריק?", name.trim() === "");
+console.log("גיל מספר?", !Number.isNaN(Number(age)));
+console.log("גיל תקין (18+)?", Number(age) >= 18);</code></pre>
+                <button class="run-btn" onclick="runDemo('validationBasic')">הרץ בדיקות</button>
+                <div class="output" id="output-validationBasic"></div>
+            </div>
+            <div class="tip-grid">
+                <div class="tip-card"><strong><code>trim()</code></strong><span>מסיר רווחים מהתחלה וסוף — «   » נחשב ריק.</span></div>
+                <div class="tip-card"><strong><code>typeof</code></strong><span>בודק סוג — מספר, מחרוזת, בוליאני.</span></div>
+                <div class="tip-card"><strong>תנאים</strong><span>משלבים בדיקות עם <code>&amp;&amp;</code> ו-<code>||</code>.</span></div>
+            </div>
+        </div>
+
+        <!-- Slide 10 -->
+        <div class="slide">
+            <h2>Validation — אימייל ותנאים</h2>
+            <div class="interactive-code">
+                <pre><code class="language-javascript">function isValidEmail(email) {
+    return email.includes("@") && email.includes(".") && email.length >= 5;
+}
+console.log("test@mail.com:", isValidEmail("test@mail.com"));
+console.log("bad-email:", isValidEmail("bad-email"));</code></pre>
+                <button class="run-btn" onclick="runDemo('validationEmail')">הרץ אימייל</button>
+                <div class="output" id="output-validationEmail"></div>
+            </div>
+            <div class="note"><p>בפרויקטים אמיתיים משתמשים בביטויים רגולריים (<span class="term-ltr">RegExp</span>) — כאן מספיק בדיקה פשוטה ללמידה.</p></div>
+        </div>
+
+        <!-- Slide 11 -->
+        <div class="slide">
+            <h2>פונקציית <span class="term-ltr">validate</span> מלאה</h2>
+            <div class="interactive-code">
+                <pre><code class="language-javascript">function validateUser(user) {
+    const errors = [];
+    if (!user.name || user.name.trim() === "") errors.push("שם חסר");
+    if (typeof user.age !== "number" || user.age < 18) errors.push("גיל לא תקין");
+    if (!user.email || !user.email.includes("@")) errors.push("אימייל לא תקין");
+    return { valid: errors.length === 0, errors };
+}</code></pre>
+                <button class="run-btn" onclick="runDemo('validateUser')">הרץ validateUser</button>
+                <div class="output" id="output-validateUser"></div>
+            </div>
+            <div class="warning-box"><strong>דפוס מומלץ:</strong> מחזירים <code>{ valid, errors }</code> — קל להציג הודעות למשתמש.</div>
+        </div>
+
+        <!-- Slide 12: Loops -->
+        <div class="slide">
+            <h2><span class="term-ltr">Loops</span> — שלושת הסוגים העיקריים</h2>
+            <p class="lead">לולאה אומרת למחשב: «תחזור על אותה פעולה». ב-JavaScript יש שלוש דרכים עיקריות — ההבדל הוא <strong>מתי בודקים את התנאי</strong> ו<strong>כמה פעמים בערך נדע לחזור</strong>.</p>
+
+            <div class="tip-grid">
+                <div class="tip-card">
+                    <strong><code>for</code> — הכי נפוצה</strong>
+                    <span>מבנה: <code>for (התחלה; תנאי; צעד)</code>. מושלמת כשיודעים כמה פעמים לרוץ — למשל «עבור על כל איבר במערך».</span>
+                </div>
+                <div class="tip-card">
+                    <strong><code>while</code> — כל עוד…</strong>
+                    <span>בודקת תנאי <strong>לפני</strong> כל סיבוב. אם התנאי false מההתחלה — לא רצה אפילו פעם. טובה כשלא יודעים מראש כמה פעמים (למשל «עד שהמשתמש יזין נכון»).</span>
+                </div>
+                <div class="tip-card">
+                    <strong><code>do...while</code> — לפחות פעם אחת</strong>
+                    <span>מריצה את הגוף, <strong>ואז</strong> בודקת. תמיד רצה מינימום פעם אחת. לדוגמה: תפריט שמציג אפשרויות ושואל «לנסות שוב?».</span>
+                </div>
+            </div>
+
+            <div class="interactive-code">
+                <pre><code class="language-javascript">// for — יודעים מראש: 1, 2, 3
+for (let i = 1; i <= 3; i++) {
+    console.log("for:", i);
+}
+
+// while — בודק לפני כל סיבוב
+let n = 1;
+while (n <= 3) {
+    console.log("while:", n);
+    n++;
+}
+
+// do...while — רץ פעם אחת, ואז בודק
+let m = 0;
+do {
+    m++;
+    console.log("do...while:", m);
+} while (m < 3);</code></pre>
+                <button class="run-btn" onclick="runDemo('loopsBasic')">הרץ לולאות</button>
+                <div class="output" id="output-loopsBasic"></div>
+            </div>
+
+            <table class="data-table">
+                <thead><tr><th>לולאה</th><th>מתי בודקים?</th><th>דוגמה מהחיים</th></tr></thead>
+                <tbody>
+                    <tr><td><code>for</code></td><td>לפני כל סיבוב</td><td>לעבור על 10 פריטים במערך</td></tr>
+                    <tr><td><code>while</code></td><td>לפני כל סיבוב</td><td>לחכות עד שיש קלט תקין</td></tr>
+                    <tr><td><code>do...while</code></td><td>אחרי כל סיבוב</td><td>להציג תפריט לפחות פעם אחת</td></tr>
+                </tbody>
+            </table>
+            <div class="note"><p><strong>טיפ:</strong> על מערכים מודרניים לעיתים נוח יותר <code>for...of</code> או <code>forEach</code> — נראה בהמשך. <code>for</code> עדיין חשוב כשצריך <strong>אינדקס</strong> (מיקום במערך).</p></div>
+        </div>
+
+        <!-- Slide 13 -->
+        <div class="slide">
+            <h2><span class="term-ltr">break</span> ו-<span class="term-ltr">continue</span></h2>
+            <div class="interactive-code">
+                <pre><code class="language-javascript">for (let i = 1; i <= 8; i++) {
+    if (i % 2 !== 0) continue; // מדלג על אי-זוגיים
+    if (i > 6) break;          // עוצר אחרי 6
+    console.log("זוגי:", i);
+}</code></pre>
+                <button class="run-btn" onclick="runDemo('breakContinue')">הרץ break/continue</button>
+                <div class="output" id="output-breakContinue"></div>
+            </div>
+        </div>
+
+        <!-- Slide 14 -->
+        <div class="slide">
+            <h2>שיטות מערכים: <span class="term-ltr">push</span> · <span class="term-ltr">pop</span></h2>
+            <p class="lead">שינוי <strong>בסוף</strong> המערך — הוספה והסרה.</p>
+            <div class="interactive-code">
+                <pre><code class="language-javascript">const fruits = ["תפוח", "בננה"];
+fruits.push("תות");    // מוסיף לסוף
+const last = fruits.pop(); // מסיר מהסוף</code></pre>
+                <button class="run-btn" onclick="runDemo('arrayPushPop')">הרץ push/pop</button>
+                <div class="output" id="output-arrayPushPop"></div>
+            </div>
+        </div>
+
+        <!-- Slide 15 -->
+        <div class="slide">
+            <h2>שיטות מערכים: <span class="term-ltr">shift</span> · <span class="term-ltr">unshift</span></h2>
+            <p class="lead">שינוי <strong>בתחילת</strong> המערך.</p>
+            <div class="interactive-code">
+                <pre><code class="language-javascript">const queue = ["שני", "שלישי"];
+queue.unshift("ראשון");  // מוסיף להתחלה
+const first = queue.shift(); // מסיר מההתחלה</code></pre>
+                <button class="run-btn" onclick="runDemo('arrayShiftUnshift')">הרץ shift/unshift</button>
+                <div class="output" id="output-arrayShiftUnshift"></div>
+            </div>
+        </div>
+
+        <!-- Slide 16 -->
+        <div class="slide">
+            <h2><span class="term-ltr">slice</span> מול <span class="term-ltr">splice</span></h2>
+            <p class="lead">שתי המילים נשמעות דומה — אבל ההבדל קריטי: <strong><code>slice</code> מצלם חלק מהמערך</strong> (בלי לגעת במקור), ו-<strong><code>splice</code> משנה את המערך המקורי</strong> (מוחק ו/או מוסיף באמצע).</p>
+
+            <div class="concept-card">
+                <p><strong>אינדקסים לדוגמה:</strong> <code>[10, 20, 30, 40, 50]</code> → אינדקס 0 = 10, אינדקס 1 = 20, אינדקס 2 = 30…</p>
+            </div>
+
+            <h3><code>slice(start, end)</code> — «חיתוך לצפייה»</h3>
+            <ul>
+                <li><code>start</code> — מאיזה אינדקס להתחיל (כולל)</li>
+                <li><code>end</code> — עד לאיזה אינדקס (לא כולל את end עצמו!)</li>
+                <li>מחזיר <strong>מערך חדש</strong> — המקור נשאר זהה</li>
+            </ul>
+            <p class="lead" style="font-size:1rem;">דוגמה: <code>slice(1, 4)</code> על <code>[10,20,30,40,50]</code> → <code>[20, 30, 40]</code></p>
+
+            <h3><code>splice(start, deleteCount, ...items)</code> — «עריכה אמיתית»</h3>
+            <ul>
+                <li><code>start</code> — מאיזה אינדקס להתחיל</li>
+                <li><code>deleteCount</code> — כמה איברים למחוק מכאן</li>
+                <li><code>...items</code> — (אופציונלי) מה להוסיף במקום</li>
+                <li>מחזיר מערך של מה שנמחק — ו<strong>משנה</strong> את המערך המקורי</li>
+            </ul>
+            <p class="lead" style="font-size:1rem;">דוגמה: <code>splice(2, 2, 99, 100)</code> — ממיקום 2 מוחק 2 איברים (30, 40) ומכניס 99, 100</p>
+
+            <table class="data-table">
+                <thead><tr><th>מתודה</th><th>משנה מקור?</th><th>מחזיר</th><th>מתי להשתמש?</th></tr></thead>
+                <tbody>
+                    <tr><td><code>slice</code></td><td>לא ❌</td><td>מערך חדש (חתוך)</td><td>העתקה, הצגה, שליחה בלי לשבור מקור</td></tr>
+                    <tr><td><code>splice</code></td><td>כן ✅</td><td>מה שנמחק</td><td>מחיקה/הוספה באמצע רשימה חיה</td></tr>
+                </tbody>
+            </table>
+
+            <div class="interactive-code">
+                <pre><code class="language-javascript">const nums = [10, 20, 30, 40, 50];
+
+// slice — מקור לא משתנה
+const piece = nums.slice(1, 4);
+console.log("slice:", piece);   // [20, 30, 40]
+console.log("מקור:", nums);     // [10, 20, 30, 40, 50]
+
+// splice — מקור כן משתנה
+const removed = nums.splice(2, 2, 99, 100);
+console.log("נמחק:", removed);  // [30, 40]
+console.log("מקור:", nums);     // [10, 20, 99, 100, 50]</code></pre>
+                <button class="run-btn" onclick="runDemo('sliceSplice')">הרץ slice/splice</button>
+                <div class="output" id="output-sliceSplice"></div>
+            </div>
+            <div class="warning-box"><strong>זכרו:</strong> <code>slice</code> = צילום. <code>splice</code> = גזירה + הדבקה. אל תתבלבלו — זו טעות נפוצה בכיתה!</div>
+        </div>
+
+        <!-- Slide 17 -->
+        <div class="slide">
+            <h2>מערכים מתקדם: <span class="term-ltr">indexOf</span> · <span class="term-ltr">includes</span> · <span class="term-ltr">join</span> · <span class="term-ltr">reverse</span></h2>
+            <p class="lead">אחרי <code>push</code>/<code>pop</code> — ארבע מתודות שמשתמשים בהן כל יום: <strong>לחפש</strong>, <strong>לבדוק קיום</strong>, <strong>לחבר למחרוזת</strong>, ו-<strong>להפוך סדר</strong>.</p>
+
+            <div class="tip-grid">
+                <div class="tip-card">
+                    <strong><code>indexOf(ערך)</code></strong>
+                    <span>מחזיר את <strong>האינדקס הראשון</strong> שבו הערך נמצא. אם לא נמצא — מחזיר <code>-1</code>. שימושי כשצריך מיקום, לא רק כן/לא.</span>
+                </div>
+                <div class="tip-card">
+                    <strong><code>includes(ערך)</code></strong>
+                    <span>מחזיר <code>true</code> או <code>false</code> — «האם הערך קיים?». יותר קריא מ-<code>indexOf !== -1</code>.</span>
+                </div>
+                <div class="tip-card">
+                    <strong><code>join(מפריד)</code></strong>
+                    <span>הופך מערך ל<strong>מחרוזת אחת</strong>, עם מפריד ביניהם. <code>["a","b"].join("-")</code> → <code>"a-b"</code>. הפוך מ-<code>split</code> על מחרוזת.</span>
+                </div>
+                <div class="tip-card">
+                    <strong><code>reverse()</code></strong>
+                    <span>הופך את סדר האיברים <strong>במקום</strong> — משנה את המערך המקורי! אם צריך עותק הפוך בלי לשבור מקור: <code>[...arr].reverse()</code>.</span>
+                </div>
+            </div>
+
+            <div class="interactive-code">
+                <pre><code class="language-javascript">const tags = ["js", "html", "css", "js"];
+
+console.log(tags.indexOf("js"));       // 0 — הופעה ראשונה
+console.log(tags.indexOf("react"));    // -1 — לא נמצא
+console.log(tags.includes("css"));     // true
+console.log(tags.includes("react"));    // false
+console.log(tags.join(" | "));         // "js | html | css | js"
+
+const nums = [3, 1, 4];
+const reversed = [...nums].reverse();   // עותק הפוך — מקור נשמר
+console.log("מקור:", nums);            // [3, 1, 4]
+console.log("הפוך:", reversed);        // [4, 1, 3]</code></pre>
+                <button class="run-btn" onclick="runDemo('arrayAdvanced')">הרץ מתודות</button>
+                <div class="output" id="output-arrayAdvanced"></div>
+            </div>
+            <div class="note"><p><strong>indexOf מול includes:</strong> צריך מיקום? → <code>indexOf</code>. רק לבדוק «יש או אין»? → <code>includes</code>.</p></div>
+        </div>
+
+        <!-- Slide 18 -->
+        <div class="slide">
+            <h2>אובייקטים: <span class="term-ltr">Object.keys()</span> · <span class="term-ltr">values()</span> · <span class="term-ltr">entries()</span></h2>
+            <p class="lead">אובייקט הוא זוגות של <strong>מפתח → ערך</strong>. שלוש המתודות האלה הופכות את האובייקט ל<strong>מערכים</strong> — כדי שיהיה קל לעבור בלולאה, לספור, או להציג.</p>
+
+            <table class="data-table">
+                <thead><tr><th>מתודה</th><th>מה מחזיר?</th><th>דוגמה ל-<code>{ name: "מאיה", role: "student" }</code></th></tr></thead>
+                <tbody>
+                    <tr><td><code>Object.keys(obj)</code></td><td>מערך של <strong>שמות המפתחות</strong></td><td><code>["name", "role"]</code></td></tr>
+                    <tr><td><code>Object.values(obj)</code></td><td>מערך של <strong>הערכים בלבד</strong></td><td><code>["מאיה", "student"]</code></td></tr>
+                    <tr><td><code>Object.entries(obj)</code></td><td>מערך של <strong>זוגות</strong> [מפתח, ערך]</td><td><code>[["name","מאיה"], ["role","student"]]</code></td></tr>
+                </tbody>
+            </table>
+
+            <div class="tip-grid">
+                <div class="tip-card"><strong>keys</strong><span>כשצריך רשימת שדות — «מה יש באובייקט?»</span></div>
+                <div class="tip-card"><strong>values</strong><span>כשמעניינים רק הערכים — בלי שמות השדות</span></div>
+                <div class="tip-card"><strong>entries</strong><span>הכי שימושי ללולאות — מקבלים גם מפתח וגם ערך ביחד</span></div>
+            </div>
+
+            <div class="interactive-code">
+                <pre><code class="language-javascript">const user = { name: "מאיה", role: "student", active: true };
+
+console.log("keys:", Object.keys(user));
+console.log("values:", Object.values(user));
+console.log("entries:", Object.entries(user));
+
+// entries + for...of — הדרך המומלצת לעבור על אובייקט
+for (const [key, value] of Object.entries(user)) {
+    console.log(`${key} => ${value}`);
+}</code></pre>
+                <button class="run-btn" onclick="runDemo('objectMethods')">הרץ Object methods</button>
+                <div class="output" id="output-objectMethods"></div>
+            </div>
+            <div class="note"><p><strong>לזכור:</strong> <code>Object.keys()</code> מחזיר מערך — אפשר להשתמש ב-<code>.length</code> כדי לדעת כמה שדות יש באובייקט.</p></div>
+        </div>
+
+        <!-- Slide 19 -->
+        <div class="slide">
+            <h2>Iteration — <span class="term-ltr">for</span> · <span class="term-ltr">forEach</span> · <span class="term-ltr">for...in</span> · <span class="term-ltr">for...of</span></h2>
+            <p class="lead"><span class="term-ltr">Iteration</span> = מעבר על רשימה או אובייקט איבר־איבר. יש כמה דרכים — הבחירה תלויה ב<strong>מערך או אובייקט</strong> וב<strong>האם צריך אינדקס</strong>.</p>
+
+            <div class="tip-grid">
+                <div class="tip-card">
+                    <strong><code>for</code> קלאסי</strong>
+                    <span><code>for (let i = 0; i &lt; arr.length; i++)</code> — נותן <strong>אינדקס i</strong>. טוב כשצריך מיקום, או לולאה מורכבת עם <code>break</code>/<code>continue</code>.</span>
+                </div>
+                <div class="tip-card">
+                    <strong><code>forEach</code></strong>
+                    <span><code>arr.forEach((item, i) => …)</code> — קריא ונקי על מערך. <strong>אי אפשר לעצור</strong> עם <code>break</code>. מתאים ל«תעשה משהו על כל איבר».</span>
+                </div>
+                <div class="tip-card">
+                    <strong><code>for...of</code></strong>
+                    <span><code>for (const x of arr)</code> — עובר על <strong>ערכים</strong> (מערך, מחרוזת…). מודרני וקריא. אפשר <code>break</code>. <strong>לא</strong> על אובייקט רגיל!</span>
+                </div>
+                <div class="tip-card">
+                    <strong><code>for...in</code></strong>
+                    <span><code>for (const key in obj)</code> — עובר על <strong>מפתחות</strong> של אובייקט. על מערכים — עלול לתת אינדקסים מוזרים; לרוב עדיף <code>for...of</code> למערכים.</span>
+                </div>
+            </div>
+
+            <table class="data-table">
+                <thead><tr><th>מה יש לך?</th><th>מה צריך?</th><th>מה לבחור?</th></tr></thead>
+                <tbody>
+                    <tr><td>מערך</td><td>אינדקס + ערך</td><td><code>for</code> או <code>forEach</code></td></tr>
+                    <tr><td>מערך</td><td>רק ערכים</td><td><code>for...of</code></td></tr>
+                    <tr><td>אובייקט</td><td>מפתח + ערך</td><td><code>Object.entries</code> + <code>for...of</code></td></tr>
+                    <tr><td>אובייקט</td><td>רק מפתחות</td><td><code>for...in</code> או <code>Object.keys</code></td></tr>
+                </tbody>
+            </table>
+
+            <div class="interactive-code">
+                <pre><code class="language-javascript">const skills = ["HTML", "CSS", "JS"];
+
+// for — עם אינדקס
+for (let i = 0; i < skills.length; i++) {
+    console.log(i, skills[i]);
+}
+
+// forEach — נקי, בלי break
+skills.forEach((skill, i) => console.log("forEach:", i, skill));
+
+// for...of — ערכים במערך
+for (const skill of skills) console.log("of:", skill);
+
+const config = { theme: "dark", lang: "he" };
+
+// for...in — מפתחות באובייקט
+for (const key in config) console.log("in:", key, config[key]);
+
+// entries + for...of — הכי מסודר לאובייקט
+for (const [k, v] of Object.entries(config)) console.log("entry:", k, v);</code></pre>
+                <button class="run-btn" onclick="runDemo('iterationAll')">הרץ כל סוגי ה-Iteration</button>
+                <div class="output" id="output-iterationAll"></div>
+            </div>
+            <div class="warning-box"><strong>טעות נפוצה:</strong> <code>for...in</code> על מערך — עובר גם על מפתחות מיותרים. על מערכים → <code>for...of</code> או <code>forEach</code>.</div>
+        </div>
+
+        <!-- Slide 20 -->
+        <div class="slide">
+            <h2>מבנים מקוננים — מערך של אובייקטים</h2>
+            <p class="lead">המצב הנפוץ ביותר באפליקציות: רשימת משתמשים, מוצרים, ציונים — כל פריט הוא אובייקט.</p>
+            <div class="interactive-code">
+                <pre><code class="language-javascript">const students = [
+    { name: "נועה", grade: 92 },
+    { name: "דניאל", grade: 78 },
+    { name: "מאיה", grade: 85 }
+];
+for (const s of students) {
+    if (s.grade >= 80) console.log(s.name, s.grade);
+}</code></pre>
+                <button class="run-btn" onclick="runDemo('nestedArrayObjects')">הרץ סינון תלמידים</button>
+                <div class="output" id="output-nestedArrayObjects"></div>
+            </div>
+        </div>
+
+        <!-- Slide 21 -->
+        <div class="slide">
+            <h2>מבנים מקוננים — אובייקט של מערכים</h2>
+            <div class="interactive-code">
+                <pre><code class="language-javascript">const classroom = {
+    className: "JS 2026",
+    students: ["אלכס", "נועה", "דניאל"],
+    grades: [90, 82, 76]
+};
+classroom.students.forEach((name, i) => {
+    console.log(`${name}: ${classroom.grades[i]}`);
+});</code></pre>
+                <button class="run-btn" onclick="runDemo('nestedObjectArrays')">הרץ כיתה</button>
+                <div class="output" id="output-nestedObjectArrays"></div>
+            </div>
+        </div>
+
+        <!-- Slide 22 -->
+        <div class="slide">
+            <h2><span class="term-ltr">Spread Operator</span> — <code>...</code></h2>
+            <p class="lead">מפזר אלמנטים ממערך או מפתחות מאובייקט — שימושי להעתקה ומיזוג בלי לשנות את המקור (במערכים).</p>
+            <div class="interactive-code">
+                <pre><code class="language-javascript">const a = [1, 2, 3];
+const b = [...a, 4, 5];
+
+const user = { name: "דני", age: 20 };
+const profile = { ...user, city: "תל אביב", age: 21 };</code></pre>
+                <button class="run-btn" onclick="runDemo('spreadDemo')">הרץ Spread</button>
+                <div class="output" id="output-spreadDemo"></div>
+            </div>
+            <div class="note"><p><code>...user</code> מעתיק את כל המפתחות — <code>age: 21</code> אחר כך «דורס» את הגיל הישן.</p></div>
+        </div>
+
+        <!-- Slide 23 -->
+        <div class="slide">
+            <h2>תרגול מסכם בלייב 🔥</h2>
+            <p class="lead">Validation + לולאה + Spread — מסננים משתמשים תקינים ומחזירים רשימה חדשה.</p>
+            <div class="interactive-code">
+                <pre><code class="language-javascript">function validateAndFilter(users) {
+    const valid = [];
+    for (const user of users) {
+        if (!user.name?.trim()) continue;
+        if (user.age < 18) continue;
+        valid.push({ ...user, status: "מאושר" });
+    }
+    return valid;
+}</code></pre>
+                <button class="run-btn" onclick="runDemo('practiceLive')">הרץ תרגול מסכם</button>
+                <div class="output" id="output-practiceLive"></div>
+            </div>
+        </div>
+
+        <!-- Slide 24 -->
+        <div class="slide">
+            <h2>שיעורי בית 📚</h2>
+            <div class="homework-grid">
+                <div class="exercise-box"><h3>1. validateProduct</h3><p>פונקציה שבודקת שם, מחיר &gt; 0, ומלאי &gt;= 0. מחזירה <code>errors</code>.</p></div>
+                <div class="exercise-box"><h3>2. סינון מערך</h3><p>מערך מספרים — הדפיסו רק מספרים בין 10 ל-50 עם <code>continue</code>.</p></div>
+                <div class="exercise-box"><h3>3. push ו-slice</h3><p>צרו מערך, הוסיפו עם <code>push</code>, העתיקו חלק עם <code>slice</code> בלי לשנות מקור.</p></div>
+                <div class="exercise-box"><h3>4. Object.entries</h3><p>אובייקט הגדרות — הדפיסו כל מפתח וערך עם <code>for...of</code> על <code>entries()</code>.</p></div>
+                <div class="exercise-box"><h3>5. מערך משתמשים</h3><p>מערך של 5 אובייקטים — סננו מי פעיל (<code>active: true</code>) עם לולאה.</p></div>
+                <div class="exercise-box"><h3>6. Spread</h3><p>מיזוג שני אובייקטים לפרופיל משתמש אחד עם <code>...</code>.</p></div>
+            </div>
+        </div>
+
+        <!-- Slide 25 -->
+        <div class="slide">
+            <h2>סיכום</h2>
+            <ul class="summary-list">
+                <li><strong>Scope</strong> קובע איפה משתנים נגישים — Global, Function, Block.</li>
+                <li><strong>Validation</strong> מגן על האפליקציה — בודקים קלט לפני שממשיכים.</li>
+                <li><strong>Loops</strong> — <code>for</code>, <code>while</code>, <code>do...while</code> + <code>break</code>/<code>continue</code>.</li>
+                <li>מערכים: <code>push</code>/<code>pop</code> (סוף), <code>shift</code>/<code>unshift</code> (התחלה), <code>slice</code> (העתקה), <code>splice</code> (שינוי).</li>
+                <li>מתקדם: <code>indexOf</code>, <code>includes</code>, <code>join</code>, <code>reverse</code>.</li>
+                <li>אובייקטים: <code>Object.keys/values/entries</code>.</li>
+                <li>Iteration: <code>for</code>, <code>forEach</code>, <code>for...of</code> (מערכים), <code>for...in</code> (מפתחות אובייקט).</li>
+                <li>מבנים מקוננים + <code>...</code> Spread — עובדים עם נתונים אמיתיים.</li>
+            </ul>
+            <div class="final-message">
+                <h3>עכשיו אתם שולטים בנתונים! 🎉</h3>
+                <p>שיעור 8 — נמשיך לכלים מתקדמים יותר.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">❮</button>
+        <span class="slide-counter" id="slideCounter">1 / 25</span>
+        <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">❯</button>
+    </div>
+
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
